@@ -51,9 +51,12 @@
 #define CHG_LED          LED_BLUE_L
 #define LOWBAT_LED       LED_RED_R
 #define LINK_DOWN_LED    LED_RED_L
-#define SYS_LED          LED_RED_R
+#define SYS_LED          LED_RED_L  //OLD: #define SYS_LED          LED_RED_R
 #define ERR_LED1         LED_RED_L
 #define ERR_LED2         LED_RED_R
+
+//Drone has 4 letters next to LEDs, M1, M2, M3, M4.
+//M1 is the front right. M4 is the front left.
 
 #define LED_NUM 6
 
