@@ -28,7 +28,10 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
-
+// The new controller goes here --------------------------------------------
+// Move the includes to the the top of the file if you want to
+#include "controller.h"
+#include "controller_pid.h"
 #include "app.h"
 
 #include "FreeRTOS.h"
@@ -48,19 +51,14 @@ void appMain() {
   }
 }
 
-// The new controller goes here --------------------------------------------
-// Move the includes to the the top of the file if you want to
-#include "controller.h"
 
-// Call the PID controller in this example to make it possible to fly. When you implement you own controller, there is
-// no need to include the pid controller.
-#include "controller_pid.h"
 
 void controllerOutOfTreeInit() {
   // Initialize your controller data here...
 
   // Call the PID controller instead in this example to make it possible to fly
-  controllerPidInit();
+  attitudeControllerInit(ATTITUDE_UPDATE_DT);
+  positionControllerInit();
 }
 
 bool controllerOutOfTreeTest() {
