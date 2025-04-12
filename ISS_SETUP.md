@@ -5,6 +5,9 @@ The official instructions for making the firmware and uploading it to the Crazyf
 Flashing requires the Crazyflie Client to be set up in Python. We provide .yaml files to set up a Python Conda
 environment below, but the official instructions are given [here](https://github.com/bitcraze/crazyflie-clients-python/blob/master/docs/installation/install.md). 
 
+## Installing Git LFS
+Instructions on how to set up Git LFS are given [here](https://docs.github.com/en/repositories/working-with-files/managing-large-files/installing-git-large-file-storage).
+
 ## Cloning the Repo
 
 The Crazyflie firmware repo has git submodule dependencies meaning that it requires other public github repos to make 
@@ -29,3 +32,8 @@ Where `os` can be replaced with [linux, mac]. Afterward, you may activate the en
 ```shell
 conda activate crazyflie
 ```
+
+## Controller
+
+And explanation of the controllers that are available are given [here](https://www.bitcraze.io/documentation/repository/crazyflie-firmware/master/functional-areas/sensor-to-control/controllers/). 
+Instructions on how to integrate a controller into the Crazyflie code is given by this [article](https://www.bitcraze.io/2023/02/adding-an-estimator-or-controller/).
