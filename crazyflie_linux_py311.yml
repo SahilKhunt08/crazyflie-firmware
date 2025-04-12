@@ -155,6 +155,7 @@ dependencies:
   - zstd=1.5.5=hc292b87_2
   - pip:
       - appdirs==1.4.4
+      - cfclient
       - cfgv==3.4.0
       - distlib==0.3.8
       - filelock==3.14.0
