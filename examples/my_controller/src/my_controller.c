@@ -30,7 +30,6 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
-
 #include "app.h"
 
 #include "FreeRTOS.h"
