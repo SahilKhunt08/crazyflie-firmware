@@ -11,7 +11,7 @@
 #define DEBUG_MODULE "MYCONTROLLER"
 #include "debug.h"
 
-static const float K[4][6]= [[-7.07106781e-01 -1.69566287e-16  5.00000000e-01  9.00091045e-15
+static const float K[4][6] = [[-7.07106781e-01 -1.69566287e-16  5.00000000e-01  9.00091045e-15
   -5.39415035e+01  5.00000000e-01 -2.87684351e+00 -5.86385767e-16
    2.71672377e+01  6.32865340e-15 -5.96456326e+01  5.95220734e+00]
  [-4.85387485e-17 -7.07106781e-01  5.00000000e-01  5.39415035e+01
@@ -82,15 +82,9 @@ setpoint->attitude.yaw
 // Compute control = -K(x - r)
 float u[4] = {0};
 for (int i = 0; i < 4; i++) {
-for (int j = 0; j < 6; j++) {
-u[i] -= K[i][j] * (x[j] - r[j]);
-}
+  for (int j = 0; j < 6; j++) {
+    u[i] -= K[i][j] * (x[j] - r[j]);
+  }
 }
 
-// Saturation/clamping (if needed)
-float maxRoll = 20.0f, maxPitch = 20.0f, maxYawRate = 200.0f, maxThrust = 60000.0f;
-control->roll = constrain(u[0], -maxRoll, maxRoll);
-control->pitch = constrain(u[1], -maxPitch, maxPitch);
-control->yaw = constrain(u[2], -maxYawRate, maxYawRate);
-control->thrust = constrain(u[3], 0, maxThrust);
 }
