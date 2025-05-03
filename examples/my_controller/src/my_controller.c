@@ -112,8 +112,8 @@ void controllerOutOfTree(control_t *control, const setpoint_t *setpoint,
 
   // Reference vector: desired values from setpoint
   float r[NX] = {
-    0,
-    0,
+    200,
+    200,
     200,
     0,
     0,
@@ -131,7 +131,7 @@ void controllerOutOfTree(control_t *control, const setpoint_t *setpoint,
   for (int i = 0; i < NU; i++) {
     u[i] = 0;
       for (int j = 0; j < NX; j++) {   
-          u[i] += 14475.809152959684 - K[i][j]*(x[j] - r[j]);
+          u[i] += 14475.809152959684f - K[i][j]*(x[j] - r[j]);
       }
   }
 
@@ -163,14 +163,17 @@ void controllerOutOfTree(control_t *control, const setpoint_t *setpoint,
       
   }
   //  DEBUG_PRINT("Updated u[0]: %f", u[0]);
-//   consolePrintf("Code reached here!");
   
   //rpm from each motor => thrust for each motor
 //   int maxThrust = 65536;
 //   int minThrust = 0;
-  control->thrust = 20000; // constrainf(u[0], minThrust, maxThrust);
-  control->roll =3000; // saturateSignedInt16(u[1]);
-  control->pitch = saturateSignedInt16(u[2]);
-  control->yaw = saturateSignedInt16(u[3]);
+  control->thrust = 40000; // constrainf(u[0], minThrust, maxThrust);
+  control->roll =0; // saturateSignedInt16(u[1]);
+  control->pitch = 0;
+  control->yaw = 0;
+  
+  DEBUG_PRINT("THR:%d R:%d P:%d Y:%d", 
+              control->thrust, control->roll,
+              control->pitch, control->yaw);
 }
 

@@ -43,22 +43,27 @@
 
 
 // We still need an appMain() function, but we will not really use it. Just let it quietly sleep.
+
 void appMain() {
-  DEBUG_PRINT("Waiting for activation ...\n");
+    DEBUG_PRINT("Waiting for activation ...\n");
 
-  while(1) {
-    vTaskDelay(M2T(2000));
-  }
+    while(1) {
+        vTaskDelay(M2T(2000));
+
+        // Remove the DEBUG_PRINT.
+        // DEBUG_PRINT("Hello World!\n");
+
+        // Double check that CONFIG_CONTROLLER_OOT is set to True, otherwise you cannot use the
+        // controller defined in this app
+        DEBUG_PRINT("Is CONFIG_CONTROLLER_OOT set to true? %d", CONFIG_CONTROLLER_OOT);
+    }
 }
-
-
 
 void controllerOutOfTreeInit() {
   // Initialize your controller data here...
 
   // Call the PID controller instead in this example to make it possible to fly
-  attitudeControllerInit(ATTITUDE_UPDATE_DT);
-  positionControllerInit();
+  controllerPidInit();
 }
 
 bool controllerOutOfTreeTest() {
