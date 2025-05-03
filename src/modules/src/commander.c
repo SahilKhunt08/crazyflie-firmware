@@ -37,6 +37,8 @@
 #include "param.h"
 #include "static_mem.h"
 
+#include "console.h"
+
 static bool isInit;
 // Static structs are zero-initialized, so nullSetpoint corresponds to
 // modeDisable for all stab_mode_t members and zero for all physical values.
@@ -52,6 +54,19 @@ static QueueHandle_t setpointQueue;
 STATIC_MEM_QUEUE_ALLOC(setpointQueue, 1, sizeof(setpoint_t));
 static QueueHandle_t priorityQueue;
 STATIC_MEM_QUEUE_ALLOC(priorityQueue, 1, sizeof(int));
+
+// Custom task to send setpoints at 10Hz
+void customSetpointTask(void *param)
+{
+    float initial_x = lastState.position.x; 
+    float initial_y = lastState.position.y; 
+    float initial_z = lastState.position.z; 
+
+    while(1) {
+        setCustomSetpoint(initial_x, initial_y, initial_z);
+        vTaskDelay(100 / portTICK_RATE_MS); // 10Hz
+    }
+}
 
 /* Public functions */
 void commanderInit(void)
@@ -69,6 +84,7 @@ void commanderInit(void)
   lastUpdate = xTaskGetTickCount();
 
   isInit = true;
+  xTaskCreate(customSetpointTask, "CUSTOM_SETPOINT", 2*configMINIMAL_STACK_SIZE, NULL, 2, NULL);
 }
 
 void commanderSetSetpoint(setpoint_t *setpoint, int priority)
@@ -89,6 +105,41 @@ void commanderSetSetpoint(setpoint_t *setpoint, int priority)
     }
   }
 }
+
+void setCustomSetpoint(float initial_x, float initial_y, float initial_z) {
+    static setpoint_t setpoint;
+    static TickType_t lastPrintTick = 0;
+    TickType_t now = xTaskGetTickCount();
+
+    memset(&setpoint, 0, sizeof(setpoint_t));
+    setpoint.mode.x = modeAbs;
+    setpoint.mode.y = modeAbs;
+    setpoint.mode.z = modeAbs;
+    setpoint.mode.yaw = modeAbs;
+    setpoint.position.x = 0.10f;
+    setpoint.position.y = 0.10f;
+    setpoint.position.z = 21.00f;
+    setpoint.attitude.yaw = 0.0f;
+
+    // Print every 0.5 seconds (500 ms)
+    if ((now - lastPrintTick) * portTICK_PERIOD_MS >= 500) {
+        lastPrintTick = now;
+        consolePrintf("Setpoint: x=%.2f, y=%.2f, z=%.2f, yaw=%.2f\n",
+            (double)setpoint.position.x, 
+            (double)setpoint.position.y, 
+            (double)setpoint.position.z, 
+            (double)setpoint.attitude.yaw);
+
+        consolePrintf("Current:  x=%.2f, y=%.2f, z=%.2f\n",
+            (double)lastState.position.x,
+            (double)lastState.position.y,
+            (double)lastState.position.z);
+    }
+
+    commanderSetSetpoint(&setpoint, COMMANDER_PRIORITY_CRTP);
+}
+
+
 
 void commanderRelaxPriority()
 {

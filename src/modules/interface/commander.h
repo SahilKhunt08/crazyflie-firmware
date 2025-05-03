@@ -40,12 +40,16 @@
 #define COMMANDER_PRIORITY_CRTP      2
 #define COMMANDER_PRIORITY_EXTRX     3
 
+//CALLS SETCUSTOMSETPOINT every 10hz ***new functions***
+void customSetpointTask(void *param);
 void commanderInit(void);
 bool commanderTest(void);
 uint32_t commanderGetInactivityTime(void);
 
 // Arg `setpoint` cannot be const; the commander will mutate its timestamp.
 void commanderSetSetpoint(setpoint_t *setpoint, int priority);
+//sets the set point variable to custom set point ***NEWFUNCTION****
+void setCustomSetpoint(float initial_x, float initial_y, float initial_z);
 int commanderGetActivePriority(void);
 
 // Sets the priority of the current setpoint to the lowest non-disabled value,

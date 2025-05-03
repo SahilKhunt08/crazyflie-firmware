@@ -1,8 +1,10 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 #include "app.h"
+#include "console.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -14,8 +16,9 @@
 #define NX 12
 #define NU 4
 
-
 //4x12 x 12x1 = 4x1
+
+// Computed from Trajectory Generation
 
 static const float K[NU][NX] = {
   {-7.07106781e-01f, -1.69566287e-16f,  5.00000000e-01f,  9.00091045e-15f,
@@ -61,7 +64,8 @@ void appMain() {
     vTaskDelay(M2T(2000));
 
     // Remove the DEBUG_PRINT.
-     DEBUG_PRINT("Running appMain()...!\n");
+     DEBUG_PRINT("Running appMain()...!\n");     
+
   }
 }// The new controller goes here --------------------------------------------
 // Move the includes to the the top of the file if you want to
@@ -75,7 +79,7 @@ void controllerOutOfTreeInit() {
   // Initialize your controller data here...
 
   // Call the PID controller instead in this example to make it possible to fly
-  controllerPidInit();
+  // controllerPidInit();
 }
 
 bool controllerOutOfTreeTest() {
@@ -87,7 +91,8 @@ void controllerOutOfTree(control_t *control, const setpoint_t *setpoint,
   const sensorData_t *sensors, const state_t *state,
   const uint32_t tick) {
   
-    control->controlMode = controlModeLegacy;
+  control->controlMode = controlModeForceTorque;
+  // consolePrintf("Using MYCONTROLLER");
 
   // State vector
   float x[NX] = {
@@ -107,9 +112,9 @@ void controllerOutOfTree(control_t *control, const setpoint_t *setpoint,
 
   // Reference vector: desired values from setpoint
   float r[NX] = {
-    setpoint->position.x,
-    setpoint->position.y,
-    setpoint->position.z,
+    0,
+    0,
+    200,
     0,
     0,
     0,
@@ -121,11 +126,12 @@ void controllerOutOfTree(control_t *control, const setpoint_t *setpoint,
     0
   };
 
-  // Compute control vector(u) = -K(x - r)
+  // Compute control vector(u) = u_eq - K(x - r)
   float u[NU] = {0};
   for (int i = 0; i < NU; i++) {
+    u[i] = 0;
       for (int j = 0; j < NX; j++) {   
-          u[i] = -K[i][j]*(x[j] - r[j]);
+          u[i] += 14475.809152959684 - K[i][j]*(x[j] - r[j]);
       }
   }
 
@@ -135,17 +141,18 @@ void controllerOutOfTree(control_t *control, const setpoint_t *setpoint,
   const float k2 = 7.94e-12;
   const float L = 0.0397;
 
+// Alter from paper as pitch, yaw and roll are not on the same axis as K-matrix
   float W[4];
-  W[0] = u[2] * u[2]; 
-  W[1] = u[3] * u[3];  
-  W[2] = u[0] * u[0]; 
-  W[3] = u[1] * u[1];  
+  W[0] = u[0] * u[0]; 
+  W[1] = u[1] * u[1];  
+  W[2] = u[2] * u[2]; 
+  W[3] = u[3] * u[3];  
 
   float M[4][4] = {
       {k1, k1, k1, k1},
+      {0, L*k1, 0, -L*k1},
       {0, -L*k1, 0, L*k1},
-      {L*k1, 0, L*k1, 0},
-      {-k2, k2, -k2, k2}
+      {k2, -k2, k2, -k2}
   };
 
   for (int i = 0; i < 4; i++) {
@@ -153,13 +160,16 @@ void controllerOutOfTree(control_t *control, const setpoint_t *setpoint,
       for (int j = 0; j < 4; j++) {
           u[i] += M[i][j] * W[j];
       }
+      
   }
-
+  //  DEBUG_PRINT("Updated u[0]: %f", u[0]);
+//   consolePrintf("Code reached here!");
+  
   //rpm from each motor => thrust for each motor
-  int maxThrust = 65536;
-  int minThrust = 0;
-  control->thrust = constrainf(u[0], minThrust, maxThrust);
-  control->roll = saturateSignedInt16(u[1]);
+//   int maxThrust = 65536;
+//   int minThrust = 0;
+  control->thrust = 20000; // constrainf(u[0], minThrust, maxThrust);
+  control->roll =3000; // saturateSignedInt16(u[1]);
   control->pitch = saturateSignedInt16(u[2]);
   control->yaw = saturateSignedInt16(u[3]);
 }
