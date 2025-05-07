@@ -116,9 +116,9 @@ void setCustomSetpoint(float initial_x, float initial_y, float initial_z) {
     setpoint.mode.y = modeAbs;
     setpoint.mode.z = modeAbs;
     setpoint.mode.yaw = modeAbs;
-    setpoint.position.x = 0.10f;
-    setpoint.position.y = 0.10f;
-    setpoint.position.z = 21.00f;
+    setpoint.position.x = 10.0f;
+    setpoint.position.y = 10.0f;
+    setpoint.position.z = 21.0f;
     setpoint.attitude.yaw = 0.0f;
 
     // Print every 0.5 seconds (500 ms)
